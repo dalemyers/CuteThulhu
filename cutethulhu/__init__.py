@@ -6,7 +6,7 @@ import d20 as dtwenty
 import discord
 from discord.ext import commands
 
-from dice import d10, d10p
+from .dice import d10, d10p
 
 
 bot = commands.Bot(command_prefix='!')
@@ -76,10 +76,15 @@ async def roll(ctx):
         result_string = str(result).replace('**', '')
         await ctx.send(f"{ctx.author.mention} rolled {result_string}")
 
-if __name__ == "__main__":
+
+def run():
     current_file_path = os.path.abspath(__file__)
     current_folder = os.path.dirname(current_file_path)
     secrets_path = os.path.join(current_folder, ".secret")
     with open(secrets_path) as secret_file:
         token = secret_file.read().strip()
     bot.run(token)
+
+
+if __name__ == "__main__":
+    run()
