@@ -8,8 +8,6 @@ from discord.ext import commands
 
 from dice import d10, d10p
 
-with open("/Users/dalemy/Projects/cutethulhu/cutethulhu/.secret") as secret_file:
-    TOKEN = secret_file.read().strip()
 
 bot = commands.Bot(command_prefix='!')
 
@@ -78,4 +76,10 @@ async def roll(ctx):
         result_string = str(result).replace('**', '')
         await ctx.send(f"{ctx.author.mention} rolled {result_string}")
 
-bot.run(TOKEN)
+if __name__ == "__main__":
+    current_file_path = os.path.abspath(__file__)
+    current_folder = os.path.dirname(current_file_path)
+    secrets_path = os.path.join(current_folder, ".secret")
+    with open(secrets_path) as secret_file:
+        token = secret_file.read().strip()
+    bot.run(token)
