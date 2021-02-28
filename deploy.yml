@@ -1,0 +1,78 @@
+---
+- hosts: vps
+  vars:
+    repo: "https://github.com/dalemyers/CuteThulhu"
+    user_name: "azureuser"
+
+  remote_user: "{{ user_name }}"
+  tasks:
+
+  - name: Clone Repo
+    git:
+      clone: yes
+      dest: ~/cutethulhu
+      repo: "{{ repo }}"
+      accept_hostkey: true
+
+  - name: Copy Secrets
+    ansible.builtin.copy:
+      src: cutethulhu/.secret
+      dest: ~/cutethulhu/cutethulhu/.secret
+
+  - name: Install Python
+    ansible.builtin.apt:
+      pkg: 
+        - python3-venv
+        - build-essential
+        - autoconf
+        - libtool
+        - pkg-config
+        - python-dev
+        - python3-dev
+        - gcc
+      state: present
+      update_cache: yes
+    become: yes
+
+  - name: Install Poetry
+    ansible.builtin.shell: |
+      set -o pipefail
+      curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+    args:
+      executable: /bin/bash
+
+  - name: Create Virtual Environment
+    ansible.builtin.shell: |
+      if [[ ! -d "~/cutethulhu/venv" ]]; then
+        python3 -m venv venv
+      fi
+    args:
+      chdir: ~/cutethulhu
+
+  - name: Generate Requirements
+    ansible.builtin.shell: |
+      ~/.poetry/bin/poetry export --without-hashes --dev -f requirements.txt -o requirements.txt
+    args:
+      chdir: ~/cutethulhu
+
+  - name: Install Pip Wheel
+    ansible.builtin.shell: |
+      venv/bin/python -m pip install wheel
+    args:
+      chdir: ~/cutethulhu
+
+  - name: Install Dependencies
+    ansible.builtin.shell: |
+      venv/bin/python -m pip install -r requirements.txt
+    args:
+      chdir: ~/cutethulhu
+
+  - name: Kill Existing Session
+    ansible.builtin.shell: |
+      tmux kill-session -t "cutethulhu" || exit 0
+
+  - name: Run Cutethulhu
+    ansible.builtin.shell: |
+      tmux new-session -d -s "cutethulhu" "venv/bin/python -m cutethulhu"
+    args:
+      chdir: ~/cutethulhu

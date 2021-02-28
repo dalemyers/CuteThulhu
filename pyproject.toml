@@ -7,9 +7,10 @@ authors = ["Dale Myers <dale@myers.com>"]
 [tool.poetry.dependencies]
 python = "^3.9"
 "discord.py" = "^1.6.0"
-d20 = "^1.0.4"
+d20 = {git = "https://github.com/avrae/d20.git", rev = "445589a6dc6c5d1c1bfebfed743db93f7447b2fe"}
 
 [tool.poetry.dev-dependencies]
+ansible = "^3.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
