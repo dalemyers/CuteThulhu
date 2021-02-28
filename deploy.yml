@@ -55,6 +55,12 @@
     args:
       chdir: ~/cutethulhu
 
+  - name: Update Pip
+    ansible.builtin.shell: |
+      venv/bin/python -m pip install --upgrade pip
+    args:
+      chdir: ~/cutethulhu
+
   - name: Install Pip Wheel
     ansible.builtin.shell: |
       venv/bin/python -m pip install wheel
