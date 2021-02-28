@@ -43,9 +43,8 @@
 
   - name: Create Virtual Environment
     ansible.builtin.shell: |
-      if [[ ! -d "~/cutethulhu/venv" ]]; then
-        python3 -m venv venv
-      fi
+      rm -rf venv
+      python3 -m venv venv
     args:
       chdir: ~/cutethulhu
 
