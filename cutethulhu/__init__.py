@@ -9,7 +9,7 @@ from discord.ext import commands
 from .dice import d10, d10p
 
 
-bot = commands.Bot(command_prefix='!')
+bot = commands.Bot(command_prefix="!")
 
 
 async def get_n_plus_1_rolls(ctx) -> List[int]:
@@ -33,6 +33,7 @@ async def get_n_plus_1_rolls(ctx) -> List[int]:
 
     return values
 
+
 async def delete_message(ctx):
     try:
         await ctx.message.delete()
@@ -40,7 +41,7 @@ async def delete_message(ctx):
         pass
 
 
-@bot.command('b')
+@bot.command("b")
 async def bonus_roll(ctx):
     await delete_message(ctx)
     values = await get_n_plus_1_rolls(ctx)
@@ -48,10 +49,12 @@ async def bonus_roll(ctx):
         return
     percentile = min(values)
     unit = d10.roll()
-    await ctx.send(f"{ctx.author.mention} rolled `{percentile + unit}` (min({values}) + {unit})")
+    await ctx.send(
+        f"{ctx.author.mention} rolled `{percentile + unit}` (min({values}) + {unit})"
+    )
 
 
-@bot.command('p')
+@bot.command("p")
 async def penalty_roll(ctx):
     await delete_message(ctx)
     values = await get_n_plus_1_rolls(ctx)
@@ -59,10 +62,12 @@ async def penalty_roll(ctx):
         return
     percentile = max(values)
     unit = d10.roll()
-    await ctx.send(f"{ctx.author.mention} rolled `{percentile + unit}` (max({values}) + {unit})")
+    await ctx.send(
+        f"{ctx.author.mention} rolled `{percentile + unit}` (max({values}) + {unit})"
+    )
 
 
-@bot.command('r')
+@bot.command("r")
 async def roll(ctx):
     message = ctx.message.content[2:].strip()
     await delete_message(ctx)
@@ -73,7 +78,7 @@ async def roll(ctx):
         await ctx.send(f"{ctx.author.mention} rolled `{percentile + unit}`")
     else:
         result = dtwenty.roll(message.lower())
-        result_string = str(result).replace('**', '')
+        result_string = str(result).replace("**", "")
         await ctx.send(f"{ctx.author.mention} rolled {result_string}")
 
 
