@@ -82,6 +82,38 @@ async def roll(ctx):
         await ctx.send(f"{ctx.author.mention} rolled {result_string}")
 
 
+def generate_characteristic(ctx, characteristic):
+    if characteristic in ["STR", "CON", "DEX", "APP", "POW"]:
+        return dtwenty.roll("3d6*5")
+    elif characteristic in ["SIZ", "INT", "EDU"]:
+        return dtwenty.roll("(2d6+6)*5")
+    else:
+        return None
+
+
+@bot.command("gen")
+async def gen(ctx):
+    message = ctx.message.content[4:].strip()
+    await delete_message(ctx)
+
+    characteristic = message.upper()
+
+    output = f"{ctx.author.mention} rolled for"
+
+    if characteristic == "ALL":
+        output += ":\n"
+        total = 0
+        for c in ["STR", "CON", "SIZ", "DEX", "APP", "INT", "POW", "EDU"]:
+            result = generate_characteristic(ctx, c)
+            total += result.total
+            output += f"{c}: {result}\n"
+        output += f"**TOTAL:** `{total}`"
+    else:
+        output += f" {characteristic}: {generate_characteristic(ctx, characteristic)}"
+
+    await ctx.send(output)
+
+
 def run():
     current_file_path = os.path.abspath(__file__)
     current_folder = os.path.dirname(current_file_path)
