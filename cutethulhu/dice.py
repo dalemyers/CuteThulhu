@@ -25,5 +25,12 @@ class D10(Die):
     def __init__(self) -> None:
         super().__init__(10)
 
+
+class D100(Die):
+    def __init__(self) -> None:
+        super().__init__(100)
+
+
 d10 = D10()
 d10p = D10P()
+d100 = D100()

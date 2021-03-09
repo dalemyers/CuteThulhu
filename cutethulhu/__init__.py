@@ -6,7 +6,11 @@ import d20 as dtwenty
 import discord
 from discord.ext import commands
 
-from .dice import d10, d10p
+try:
+    from .dice import d10, d10p, d100
+except ImportError:
+    # TODO: Figure out this
+    from dice import d10, d10p, d100
 
 
 bot = commands.Bot(command_prefix="!")
@@ -65,6 +69,39 @@ async def penalty_roll(ctx):
     await ctx.send(
         f"{ctx.author.mention} rolled `{percentile + unit}` (max({values}) + {unit})"
     )
+
+
+@bot.command("s")
+async def skill_check(ctx):
+    value_string = ctx.message.content[2:].strip()
+    await delete_message(ctx)
+
+    try:
+        skill_value = int(value_string)
+    except ValueError:
+        await ctx.send(
+            f"{ctx.author.mention} Could not convert '{value_string}' to a value"
+        )
+        return
+
+    result = d100.roll()
+
+    qualifier = ""
+
+    if (result == 100 and skill_value >= 50) or (result >= 96 and skill_value < 50):
+        qualifier = "Fumble"
+    elif result > skill_value:
+        qualifier = "Failure"
+    elif result == 1:
+        qualifier = "Critical Success"
+    elif result <= (skill_value / 5):
+        qualifier = "Extreme Success"
+    elif result <= (skill_value / 2):
+        qualifier = "Hard Success"
+    else:
+        qualifier = "Success"
+
+    await ctx.send(f"{ctx.author.mention} rolled `{result}` [{qualifier}]")
 
 
 @bot.command("r")
