@@ -132,9 +132,22 @@ async def skill_check(ctx):
     else:
         qualifier = "Success"
 
-    await ctx.send(
-        f"{ctx.author.mention} rolls against {skill_name} of {skill_value}: {result} [{qualifier}]"
-    )
+    message = f"{ctx.author.mention} rolls against {skill_name} of {skill_value}"
+
+    if extra_count > 0:
+        if extra_count == 1:
+            message += f" with 1 bonus die"
+        else:
+            message += f" with {extra_count} bonus dice"
+    elif extra_count < 0:
+        if extra_count == -1:
+            message += f" with 1 penalty die"
+        else:
+            message += f" with {-extra_count} penalty dice"
+
+    message += f": {result} [{qualifier}]"
+
+    await ctx.send(message)
 
 
 @bot.command("r")
