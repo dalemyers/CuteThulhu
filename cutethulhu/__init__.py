@@ -79,7 +79,7 @@ def skill_parse(string):
         return None, None, None
 
     skill_name = match.group(1) or "skill"
-    skill_name = skill_name.replace("[", "").replace("]", "")
+    skill_name = skill_name.replace("[", "").replace("]", "").strip()
     skill_str = match.group(2)
     dice_type = match.group(4)
 
