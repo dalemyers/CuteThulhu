@@ -72,7 +72,9 @@ async def penalty_roll(ctx):
 
 
 def skill_parse(string):
-    match = re.match(r"([a-zA-Z \-_]*)?\s*(\d{1,2})(?:\s*\+\s*(\d*)?([BbPp]))?", string)
+    match = re.match(
+        r"([a-zA-ZÀ-ÖØ-öø-ÿ \-_]*)?\s*(\d{1,2})(?:\s*\+\s*(\d*)?([BbPp]))?", string
+    )
     if not match:
         return None, None, None
 
