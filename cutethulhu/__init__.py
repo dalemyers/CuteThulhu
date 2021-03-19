@@ -71,37 +71,68 @@ async def penalty_roll(ctx):
     )
 
 
+def skill_parse(string):
+    match = re.match(r"(\d{1,2})(?:\s*\+\s*(\d*)?(b|p))?", string.lower())
+    if not match:
+        return None, None
+
+    skill_str = match.group(1)
+    dice_type = match.group(3)
+
+    if dice_type is None:
+        extra_count = 0
+    else:
+        if match.group(2) is None or match.group(2) == "":
+            extra_count = 1
+        else:
+            extra_count = int(match.group(2))
+
+    skill_value = int(skill_str)
+
+    if dice_type == "p":
+        extra_count *= -1
+
+    return skill_value, extra_count
+
+
 @bot.command("s")
 async def skill_check(ctx):
-    value_string = ctx.message.content[2:].strip()
+    skill_value, extra_count = skill_parse(ctx.message.content[2:].strip())
     await delete_message(ctx)
 
-    try:
-        skill_value = int(value_string)
-    except ValueError:
-        await ctx.send(
-            f"{ctx.author.mention} Could not convert '{value_string}' to a value"
-        )
+    if skill_value is None or extra_count is None:
+        await ctx.send(f"{ctx.author.mention} Could not parse '{value_string}'")
         return
 
-    result = d100.roll()
+    if extra_count == 0:
+        dice_notation = "1d100"
+    elif extra_count > 0:
+        dice_notation = f"{extra_count + 1}d%kl1 + 1d10"
+    else:
+        dice_notation = f"{-extra_count + 1}d%kh1 + 1d10"
+
+    result = dtwenty.roll(dice_notation)
 
     qualifier = ""
 
-    if (result == 100 and skill_value >= 50) or (result >= 96 and skill_value < 50):
+    if (result.total == 100 and skill_value >= 50) or (
+        result.total >= 96 and skill_value < 50
+    ):
         qualifier = "Fumble"
-    elif result > skill_value:
+    elif result.total > skill_value:
         qualifier = "Failure"
-    elif result == 1:
+    elif result.total == 1:
         qualifier = "Critical Success"
-    elif result <= (skill_value / 5):
+    elif result.total <= (skill_value / 5):
         qualifier = "Extreme Success"
-    elif result <= (skill_value / 2):
+    elif result.total <= (skill_value / 2):
         qualifier = "Hard Success"
     else:
         qualifier = "Success"
 
-    await ctx.send(f"{ctx.author.mention} rolled `{result}` [{qualifier}]")
+    await ctx.send(
+        f"{ctx.author.mention} rolls against skill of {skill_value}: {result} [{qualifier}]"
+    )
 
 
 @bot.command("r")
