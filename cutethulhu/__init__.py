@@ -72,32 +72,34 @@ async def penalty_roll(ctx):
 
 
 def skill_parse(string):
-    match = re.match(r"(\d{1,2})(?:\s*\+\s*(\d*)?(b|p))?", string.lower())
+    match = re.match(r"([a-zA-Z]*)?\s*(\d{1,2})(?:\s*\+\s*(\d*)?([BbPp]))?", string)
     if not match:
-        return None, None
+        return None, None, None
 
-    skill_str = match.group(1)
-    dice_type = match.group(3)
+    skill_name = match.group(1) or "skill"
+    skill_name = skill_name.replace("[", "").replace("]", "")
+    skill_str = match.group(2)
+    dice_type = match.group(4)
 
     if dice_type is None:
         extra_count = 0
     else:
-        if match.group(2) is None or match.group(2) == "":
+        if match.group(3) is None or match.group(3) == "":
             extra_count = 1
         else:
-            extra_count = int(match.group(2))
+            extra_count = int(match.group(3))
 
     skill_value = int(skill_str)
 
-    if dice_type == "p":
+    if dice_type is not None and dice_type.lower() == "p":
         extra_count *= -1
 
-    return skill_value, extra_count
+    return skill_name, skill_value, extra_count
 
 
 @bot.command("s")
 async def skill_check(ctx):
-    skill_value, extra_count = skill_parse(ctx.message.content[2:].strip())
+    skill_name, skill_value, extra_count = skill_parse(ctx.message.content[2:].strip())
     await delete_message(ctx)
 
     if skill_value is None or extra_count is None:
@@ -105,7 +107,7 @@ async def skill_check(ctx):
         return
 
     if extra_count == 0:
-        dice_notation = "1d100"
+        dice_notation = "1d% + 1d10"
     elif extra_count > 0:
         dice_notation = f"{extra_count + 1}d%kl1 + 1d10"
     else:
@@ -131,7 +133,7 @@ async def skill_check(ctx):
         qualifier = "Success"
 
     await ctx.send(
-        f"{ctx.author.mention} rolls against skill of {skill_value}: {result} [{qualifier}]"
+        f"{ctx.author.mention} rolls against {skill_name} of {skill_value}: {result} [{qualifier}]"
     )
 
 
